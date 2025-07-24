@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Flame, Zap, Trophy, Activity, Plus, MoreVertical, Calendar, CheckCircle, Timer, ArrowRight, Shield, Sparkles } from 'lucide-react';
+import GridGame from './GridGame';
 
 const teamStats = {
   ilan: { 
