@@ -1,70 +1,111 @@
-# Getting Started with Create React App
+# 🥔 hot-potato - gamified task management
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> gamified task management system where tasks heat up over time, creating urgency and team competition.
 
-## Available Scripts
+## 🎮 what is hot-potato?
 
-In the project directory, you can run:
+a task management system that gamifies your workflow. tasks become "hot potatoes" that increase in temperature over time. team members can pass tasks, earn points, use power-ups, and compete on leaderboards.
 
-### `npm start`
+## ✨ key features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **🔥 temperature system**: tasks heat up over time (🫖 → ♨️ → 🌶️ → 🔥)
+- **🏃‍♂️ task passing**: pass tasks between team members with combo tracking
+- **⚡ power-ups**: shield, boost, and freeze abilities
+- **📊 multiple views**: game, list, board (kanban), and leaderboard
+- **💰 revenue tracking**: tasks have monetary value with temperature bonuses
+- **🎯 achievement system**: speed runner, hot streak, epic hunter, daily player
+- **🎮 mini-game**: canvas-based interactive game mode
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠️ tech stack
 
-### `npm test`
+- **react 18** with hooks
+- **lucide react** for icons  
+- **tailwind css** + custom styling
+- **html5 canvas** for game features
+- **restful api** integration with fallback to local data
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 setup
 
-### `npm run build`
+```bash
+# clone and install
+git clone [repository-url]
+cd hot-potato-app
+npm install
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# configure environment
+cp .env.example .env.local
+# edit .env.local with your api endpoints
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# start development server
+npm start
+# open http://localhost:3000
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🎯 how to use
 
-### `npm run eject`
+### creating tasks
+1. click "new task" → choose emoji, title, description
+2. set category, assignee, value, and time limit
+3. task appears in team queue and starts heating up
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### managing tasks  
+- **pass**: send to teammates strategically
+- **complete**: finish for points and revenue
+- **power-ups**: use shield (prevents heating), boost (2x points), freeze (stops timer)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### views
+- **🎮 game**: interactive canvas game
+- **📋 list**: traditional task list with your tasks first
+- **📊 board**: kanban columns (in progress → review → completed)
+- **🏆 leaderboard**: team rankings and weekly stats
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📁 project structure
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
+src/
+├── components/
+│   └── executivedashboard.js    # main dashboard component
+├── data/
+│   └── tasks.js                 # task utilities and categories
+├── services/
+│   └── api.js                   # backend api integration
+└── app.js                       # main app component
+```
 
-## Learn More
+## ⚙️ configuration
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### team members
+edit `teamstats` object in `executivedashboard.js`:
+```javascript
+const teamstats = {
+  username: {
+    name: "name",
+    avatar: "👤",
+    title: "role",
+    // ... other properties
+  }
+};
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### categories
+edit `taskcategories` in `src/data/tasks.js`:
+```javascript
+export const taskcategories = [
+  'sales', 'new customer', 'pre-construction', 
+  'construction', 'post-construction', 'customer satisfaction'
+];
+```
 
-### Code Splitting
+## 🎮 power-up shop
+- **🛡️ shield** ($2,000): prevents temperature increase for 30s
+- **⚡ boost** ($1,500): 2x points on next completion  
+- **❄️ freeze** ($2,500): stops timer on hottest task for 60s
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🔧 scripts
 
-### Analyzing the Bundle Size
+- `npm start` - development server
+- `npm test` - run tests
+- `npm run build` - production build
+- `npm run eject` - eject from cra (⚠️ one-way)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
