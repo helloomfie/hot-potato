@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Flame, Zap, Trophy, Activity, Plus, MoreVertical, Calendar, CheckCircle, Timer, ArrowRight, Shield, Sparkles } from 'lucide-react';
-import GridGame from './GridGame';
 
 const teamStats = {
   ilan: { 
@@ -129,6 +128,8 @@ const ExecutiveDashboard = () => {
     setGameState(prev => ({ ...prev, isPlaying: false }));
   };
 
+  // Function for future game integration
+  // eslint-disable-next-line no-unused-vars
   const updateGameScore = (points) => {
     setGameState(prev => ({ ...prev, score: prev.score + points }));
   };
@@ -876,6 +877,8 @@ const ExecutiveDashboard = () => {
               setActivePowerUps(prev => ({ ...prev, freeze: null }));
             }, 60000); // Freeze lasts 60 seconds
           }
+          break;
+        default:
           break;
       }
       
@@ -1800,7 +1803,7 @@ const ExecutiveDashboard = () => {
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-white" style={{fontFamily: 'Montserrat, sans-serif'}}>Task List 🔥</h2>
-                  <p className="text-xs sm:text-sm text-gray-300 mt-1">Sorted by temperature (hottest first)</p>
+                  <p className="text-xs sm:text-sm text-gray-300 mt-1">Your tasks first, then sorted by temperature (hottest first)</p>
                 </div>
                 <button 
                   onClick={handleCreatePotato}
@@ -1815,7 +1818,14 @@ const ExecutiveDashboard = () => {
 
               <div className="space-y-4 sm:space-y-6">
                 {hotPotatoes
-                  .sort((a, b) => b.temperature - a.temperature)
+                  .sort((a, b) => {
+                    // First, prioritize current user's potatoes
+                    if (a.holder === currentUser && b.holder !== currentUser) return -1;
+                    if (b.holder === currentUser && a.holder !== currentUser) return 1;
+                    
+                    // If both belong to current user or both don't, sort by temperature (hottest first)
+                    return b.temperature - a.temperature;
+                  })
                   .map((potato) => (
                     <HotPotatoCard key={potato.id} potato={potato} />
                   ))}
