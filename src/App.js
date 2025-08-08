@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Flame, Zap, Trophy, Activity, Plus, MoreVertical, Calendar, CheckCircle, Timer, ArrowRight, Shield, Sparkles } from 'lucide-react';
-import { initialTasks } from './data/tasks';
+import { initialTasks, createNewTask, sortTasksByPriority, taskCategories, popularEmojis } from './data/tasks';
+import { taskAPI } from './services/api';
 
 const teamStats = {
   ilan: { 
@@ -89,10 +90,11 @@ const ExecutiveDashboard = () => {
     timeLeft: 120
   });
 
-  const popularEmojis = [
-    '📞', '📝', '📅', '📊', '💰', '📋', '📄', '📁', '🏠', '✅',
-    '⚡', '🔧', '⭐', '🎁', '📈', '🏗️', '🔥', '💡', '📱', '🎯'
-  ];
+  // Backend integration states
+  const [hotPotatoes, setHotPotatoes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [powerUps, setPowerUps] = useState({
     freeze: 2,
     shield: 1,
@@ -120,6 +122,27 @@ const ExecutiveDashboard = () => {
     gameData: null
   });
 
+  // Load tasks from backend when component mounts
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        setLoading(true);
+        const tasks = await taskAPI.getAllTasks();
+        setHotPotatoes(tasks);
+        setError(null);
+      } catch (err) {
+        setError('Failed to load tasks from server');
+        console.error('Error loading tasks:', err);
+        // Fallback to local data if backend fails
+        setHotPotatoes(initialTasks);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTasks();
+  }, []);
+
   // Game functions
   const startGame = () => {
     setGameState(prev => ({ ...prev, isPlaying: true }));
@@ -135,7 +158,60 @@ const ExecutiveDashboard = () => {
     setGameState(prev => ({ ...prev, score: prev.score + points }));
   };
 
-  const [hotPotatoes, setHotPotatoes] = useState(initialTasks);
+  // Canvas initialization and game loop
+  useEffect(() => {
+    if (gameState.isPlaying) {
+      const canvas = document.getElementById('gameCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        
+        // Basic canvas setup
+        const setupCanvas = () => {
+          // Canvas is ready for your game logic
+          console.log('Canvas ready!', canvas.width, 'x', canvas.height);
+          
+          // Example: Add a simple test element
+          ctx.fillStyle = 'rgba(255, 204, 0, 0.8)';
+          ctx.font = '24px Montserrat';
+          ctx.textAlign = 'center';
+          ctx.fillText('🥔 Game Ready!', canvas.width / 2, canvas.height / 2);
+        };
+
+        setupCanvas();
+
+        // Add event listeners for game controls
+        const handleKeyPress = (e) => {
+          switch(e.key) {
+            case 'ArrowLeft':
+              console.log('Left arrow pressed');
+              break;
+            case 'ArrowRight':
+              console.log('Right arrow pressed');
+              break;
+            case 'ArrowUp':
+              console.log('Up arrow pressed');
+              break;
+            case 'ArrowDown':
+              console.log('Down arrow pressed');
+              break;
+            case ' ':
+              e.preventDefault();
+              console.log('Space pressed');
+              break;
+            default:
+              break;
+          }
+        };
+
+        window.addEventListener('keydown', handleKeyPress);
+
+        // Cleanup
+        return () => {
+          window.removeEventListener('keydown', handleKeyPress);
+        };
+      }
+    }
+  }, [gameState.isPlaying]);
 
   const [boardColumns, setBoardColumns] = useState({
     inProgress: {
@@ -361,108 +437,160 @@ const ExecutiveDashboard = () => {
     }
   };
 
-  const handlePassPotato = (potato, toUser) => {
-    const newPotatoes = hotPotatoes.map(p => {
-      if (p.id === potato.id) {
-        // Check for pass streak achievement
-        if (p.lastPasser === currentUser) {
-          setAchievementStats(prev => ({ ...prev, passStreak: prev.passStreak + 1 }));
-          
-          // Award shield for 5 passes in a row
-          if (achievementStats.passStreak + 1 === 5) {
-            awardPowerUp('shield', '5 passes in a row!');
-            setAchievementStats(prev => ({ ...prev, passStreak: 0 }));
-          }
-        } else {
-          setAchievementStats(prev => ({ ...prev, passStreak: 1 }));
-        }
+  const handlePassPotato = async (potato, toUser) => {
+    try {
+      // Check for pass streak achievement
+      if (potato.lastPasser === currentUser) {
+        setAchievementStats(prev => ({ ...prev, passStreak: prev.passStreak + 1 }));
         
-        return {
-          ...p,
-          holder: toUser,
-          passCount: p.passCount + 1,
-          lastPasser: currentUser,
-          // Shield prevents temperature increase
-          temperature: activePowerUps.shield ? p.temperature : Math.min(100, p.temperature + 5),
-          combo: p.lastPasser === toUser ? p.combo + 1 : 0
-        };
+        // Award shield for 5 passes in a row
+        if (achievementStats.passStreak + 1 === 5) {
+          awardPowerUp('shield', '5 passes in a row!');
+          setAchievementStats(prev => ({ ...prev, passStreak: 0 }));
+        }
+      } else {
+        setAchievementStats(prev => ({ ...prev, passStreak: 1 }));
       }
-      return p;
-    });
-    setHotPotatoes(newPotatoes);
-    setShowPassModal(false);
-    setSelectedPotato(null);
+
+      const updatedData = {
+        holder: toUser,
+        passCount: potato.passCount + 1,
+        lastPasser: currentUser,
+        temperature: activePowerUps.shield ? potato.temperature : Math.min(100, potato.temperature + 5),
+        combo: potato.lastPasser === toUser ? potato.combo + 1 : 0
+      };
+
+      const updatedTask = await taskAPI.updateTask(potato.id, updatedData);
+      
+      setHotPotatoes(hotPotatoes.map(p => 
+        p.id === potato.id ? updatedTask : p
+      ));
+      
+      setShowPassModal(false);
+      setSelectedPotato(null);
+    } catch (error) {
+      console.error('Error passing potato:', error);
+      setError('Failed to pass task');
+      // Fallback to local update if API fails
+      const newPotatoes = hotPotatoes.map(p => {
+        if (p.id === potato.id) {
+          return {
+            ...p,
+            holder: toUser,
+            passCount: p.passCount + 1,
+            lastPasser: currentUser,
+            temperature: activePowerUps.shield ? p.temperature : Math.min(100, p.temperature + 5),
+            combo: p.lastPasser === toUser ? p.combo + 1 : 0
+          };
+        }
+        return p;
+      });
+      setHotPotatoes(newPotatoes);
+      setShowPassModal(false);
+      setSelectedPotato(null);
+    }
   };
 
-  const handleCompletePotato = (potato) => {
-    const temperatureBonus = potato.temperature > 80 ? 1.5 : 1;
-    const boostBonus = activePowerUps.boost ? 2 : 1;
-    const earnedValue = Math.round(potato.value * temperatureBonus * boostBonus);
-    
-    setHotPotatoes(hotPotatoes.filter(p => p.id !== potato.id));
-    setCelebrationValue(earnedValue);
-    setCelebrationBoost(activePowerUps.boost);
-    setMyTotalRevenue(prev => prev + earnedValue);
-    
-    // Check achievements
-    // Speed runner achievement - if potato has high time left when completed, it was done quickly
-    if (potato.timeLeft > 90) { // Completed with more than 90 seconds remaining
-      setAchievementStats(prev => ({ ...prev, speedRunner: prev.speedRunner + 1 }));
-      if ((achievementStats.speedRunner + 1) % 3 === 0) {
-        awardPowerUp('boost', '3 speed runs completed!');
+  const handleCompletePotato = async (potato) => {
+    try {
+      await taskAPI.deleteTask(potato.id);
+      
+      const temperatureBonus = potato.temperature > 80 ? 1.5 : 1;
+      const boostBonus = activePowerUps.boost ? 2 : 1;
+      const earnedValue = Math.round(potato.value * temperatureBonus * boostBonus);
+      
+      setHotPotatoes(hotPotatoes.filter(p => p.id !== potato.id));
+      setCelebrationValue(earnedValue);
+      setCelebrationBoost(activePowerUps.boost);
+      setMyTotalRevenue(prev => prev + earnedValue);
+      
+      // Check achievements
+      // Speed runner achievement - if potato has high time left when completed, it was done quickly
+      if (potato.timeLeft > 90) { // Completed with more than 90 seconds remaining
+        setAchievementStats(prev => ({ ...prev, speedRunner: prev.speedRunner + 1 }));
+        if ((achievementStats.speedRunner + 1) % 3 === 0) {
+          awardPowerUp('boost', '3 speed runs completed!');
+        }
       }
+      
+      if (potato.difficulty === 'epic') {
+        setAchievementStats(prev => ({ ...prev, epicCompleted: prev.epicCompleted + 1 }));
+        awardPowerUp('freeze', 'Epic task completed!');
+      }
+      
+      // Reset boost after use
+      if (activePowerUps.boost) {
+        setActivePowerUps(prev => ({ ...prev, boost: false }));
+      }
+      
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 3000);
+    } catch (error) {
+      console.error('Error completing potato:', error);
+      setError('Failed to complete task');
+      // Fallback to local deletion if API fails
+      const temperatureBonus = potato.temperature > 80 ? 1.5 : 1;
+      const boostBonus = activePowerUps.boost ? 2 : 1;
+      const earnedValue = Math.round(potato.value * temperatureBonus * boostBonus);
+      
+      setHotPotatoes(hotPotatoes.filter(p => p.id !== potato.id));
+      setCelebrationValue(earnedValue);
+      setCelebrationBoost(activePowerUps.boost);
+      setMyTotalRevenue(prev => prev + earnedValue);
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 3000);
     }
-    
-    if (potato.difficulty === 'epic') {
-      setAchievementStats(prev => ({ ...prev, epicCompleted: prev.epicCompleted + 1 }));
-      awardPowerUp('freeze', 'Epic task completed!');
-    }
-    
-    // Reset boost after use
-    if (activePowerUps.boost) {
-      setActivePowerUps(prev => ({ ...prev, boost: false }));
-    }
-    
-    setShowCelebration(true);
-    setTimeout(() => setShowCelebration(false), 3000);
   };
 
   const handleCreatePotato = () => {
     setShowCreateModal(true);
   };
 
-  const handleSubmitNewPotato = () => {
-    const finalTitle = selectedEmoji ? `${selectedEmoji} ${newPotatoForm.title}` : `🥔 ${newPotatoForm.title}`;
-    
-    const newPotato = {
-      id: `potato-${Date.now()}`,
-      title: finalTitle,
-      description: newPotatoForm.description,
-      holder: newPotatoForm.holder,
-      temperature: Math.floor(Math.random() * 40) + 30,
-      passCount: 0,
-      value: newPotatoForm.value,
-      timeLeft: newPotatoForm.timeLeft,
-      difficulty: newPotatoForm.value > 2000 ? "epic" : newPotatoForm.value > 1200 ? "rare" : "common",
-      combo: 0,
-      lastPasser: null,
-      tags: [newPotatoForm.category.toLowerCase().replace(' ', '-'), "new"],
-      category: newPotatoForm.category
-    };
-    
-    setHotPotatoes([...hotPotatoes, newPotato]);
-    setShowCreateModal(false);
-    
-    // Reset form
-    setNewPotatoForm({
-      title: '',
-      description: '',
-      category: 'Sales',
-      holder: 'ilan',
-      value: 1000,
-      timeLeft: 120
-    });
-    setSelectedEmoji('');
+  const handleSubmitNewPotato = async () => {
+    try {
+      const taskData = {
+        title: selectedEmoji ? `${selectedEmoji} ${newPotatoForm.title}` : `🥔 ${newPotatoForm.title}`,
+        description: newPotatoForm.description,
+        holder: newPotatoForm.holder,
+        value: newPotatoForm.value,
+        timeLeft: newPotatoForm.timeLeft,
+        difficulty: newPotatoForm.value > 2000 ? "epic" : newPotatoForm.value > 1200 ? "rare" : "common",
+        category: newPotatoForm.category
+      };
+
+      const newTask = await taskAPI.createTask(taskData);
+      setHotPotatoes([...hotPotatoes, newTask]);
+      setShowCreateModal(false);
+      
+      // Reset form
+      setNewPotatoForm({
+        title: '',
+        description: '',
+        category: 'Sales',
+        holder: 'ilan',
+        value: 1000,
+        timeLeft: 120
+      });
+      setSelectedEmoji('');
+    } catch (error) {
+      console.error('Error creating task:', error);
+      setError('Failed to create task');
+      // Fallback to local creation if API fails
+      const newTask = createNewTask(newPotatoForm, selectedEmoji);
+      setHotPotatoes([...hotPotatoes, newTask]);
+      setShowCreateModal(false);
+      
+      // Reset form
+      setNewPotatoForm({
+        title: '',
+        description: '',
+        category: 'Sales',
+        holder: 'ilan',
+        value: 1000,
+        timeLeft: 120
+      });
+      setSelectedEmoji('');
+    }
   };
 
   const handleDragStart = (e, card, columnId) => {
@@ -501,6 +629,38 @@ const ExecutiveDashboard = () => {
     }
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #66B2FF 0%, #002C54 100%)'}}>
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-spin">🥔</div>
+          <p className="text-white text-xl font-bold">Loading Hot Potatoes...</p>
+          <p className="text-gray-300 text-sm mt-2">Connecting to server...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && hotPotatoes.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #66B2FF 0%, #002C54 100%)'}}>
+        <div className="text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-white text-xl font-bold mb-4">{error}</p>
+          <p className="text-gray-300 text-sm mb-6">Using offline mode with demo data</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-6 py-3 bg-yellow-400 text-black rounded-lg font-bold hover:opacity-80"
+          >
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const HotPotatoCard = ({ potato }) => {
     const isMyPotato = potato.holder === currentUser;
     const isFrozen = activePowerUps.freeze === potato.id;
@@ -531,7 +691,7 @@ const ExecutiveDashboard = () => {
             </div>
 
             <div className="flex flex-wrap gap-1 sm:gap-2">
-              {potato.tags.map((tag, idx) => (
+              {potato.tags && potato.tags.map((tag, idx) => (
                 <span key={idx} className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded-full font-semibold">
                   {tag}
                 </span>
@@ -580,12 +740,12 @@ const ExecutiveDashboard = () => {
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 sm:pt-4">
               <div className="flex items-center gap-2 sm:gap-3">
-                <span className="text-xl sm:text-2xl">{teamStats[potato.holder].avatar}</span>
+                <span className="text-xl sm:text-2xl">{teamStats[potato.holder]?.avatar || '👤'}</span>
                 <div>
-                  <div className="text-sm sm:text-base font-bold text-white" style={{fontFamily: 'Montserrat, sans-serif'}}>{teamStats[potato.holder].name}</div>
+                  <div className="text-sm sm:text-base font-bold text-white" style={{fontFamily: 'Montserrat, sans-serif'}}>{teamStats[potato.holder]?.name || 'Unknown'}</div>
                   <div className="text-xs sm:text-sm text-gray-300">
                     {potato.combo > 0 && `${potato.combo}x Combo! `}
-                    {potato.lastPasser && `from ${teamStats[potato.lastPasser].name}`}
+                    {potato.lastPasser && `from ${teamStats[potato.lastPasser]?.name || 'Unknown'}`}
                   </div>
                 </div>
               </div>
@@ -740,7 +900,7 @@ const ExecutiveDashboard = () => {
 
       <div className="space-y-3 sm:space-y-4">
         <div className="flex flex-wrap gap-1 sm:gap-2">
-          {card.tags.map((tag, idx) => (
+          {card.tags && card.tags.map((tag, idx) => (
             <span key={idx} style={{backgroundColor: '#66B2FF'}} className="text-xs sm:text-sm px-2 sm:px-3 py-1 text-white rounded-full font-semibold">
               {tag}
             </span>
@@ -777,6 +937,19 @@ const ExecutiveDashboard = () => {
 
   return (
     <div className="min-h-screen" style={{background: 'linear-gradient(135deg, #66B2FF 0%, #002C54 100%)', fontFamily: 'Montserrat, sans-serif'}}>
+      {/* Error notification banner */}
+      {error && hotPotatoes.length > 0 && (
+        <div className="fixed top-4 left-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center justify-between">
+          <span className="text-sm">⚠️ Server connection issue - running in offline mode</span>
+          <button 
+            onClick={() => setError(null)} 
+            className="text-white hover:text-gray-200 ml-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {powerUpNotification && (
         <div className="fixed top-4 right-4 bg-yellow-400 text-black px-6 py-3 rounded-lg shadow-lg z-50 animate-bounce">
           <div className="flex items-center gap-2">
@@ -879,12 +1052,9 @@ const ExecutiveDashboard = () => {
                     className="w-full p-2 sm:p-3 rounded-lg text-black font-medium text-sm sm:text-base"
                     style={{fontFamily: 'Montserrat, sans-serif'}}
                   >
-                    <option value="Sales">Sales</option>
-                    <option value="New Customer">New Customer</option>
-                    <option value="Pre-Construction">Pre-Construction</option>
-                    <option value="Construction">Construction</option>
-                    <option value="Post-Construction">Post-Construction</option>
-                    <option value="Customer Satisfaction">Customer Satisfaction</option>
+                    {taskCategories.map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -1168,55 +1338,73 @@ const ExecutiveDashboard = () => {
               </div>
             </div>
             
-            {/* Game Container - Ready for your game implementation */}
+            {/* Game Container */}
             <div id="game-container" className="w-full">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] flex items-center justify-center bg-gray-50">
+              <div className="rounded-lg min-h-[500px] flex flex-col items-center justify-center relative overflow-hidden bg-gray-900">
                 {!gameState.isPlaying ? (
-                  <div className="text-center">
-                    <Sparkles className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500 text-lg font-semibold mb-4">Ready to Play?</p>
+                  <div className="text-center relative z-10">
+                    <Sparkles className="w-16 h-16 text-yellow-400 mx-auto mb-4 drop-shadow-lg" />
+                    <p className="text-white text-xl font-bold mb-2 drop-shadow-lg" style={{fontFamily: 'Montserrat, sans-serif'}}>
+                      Hot Potato Game! 🔥
+                    </p>
+                    <p className="text-gray-200 text-lg font-semibold mb-6 drop-shadow-lg">Ready to Play?</p>
                     <button
                       onClick={startGame}
                       style={{backgroundColor: '#FFCC00'}}
-                      className="px-6 py-3 text-black rounded-lg font-bold text-base transition-all hover:opacity-80"
+                      className="px-8 py-4 text-black rounded-lg font-bold text-lg transition-all hover:opacity-80 hover:scale-105 shadow-lg"
                     >
                       Start Game 🎮
                     </button>
-                    <p className="text-gray-400 text-sm mt-4">Your interactive game will appear here</p>
+                    <p className="text-gray-300 text-sm mt-4 drop-shadow-lg">
+                      Catch the hot potatoes and complete tasks!
+                    </p>
                   </div>
                 ) : (
-                  <div className="w-full h-full">
-                    {/* 
-                      GAME INTEGRATION POINT
-                      =====================
-                      Replace this div with your game component.
-                      
-                      Available props/functions:
-                      - hotPotatoes: array of all tasks
-                      - gameState: { isPlaying, score, level, gameData }
-                      - updateGameScore(points): function to update score
-                      - endGame(): function to end the game
-                      - powerUps: current power-up counts
-                      - myTotalRevenue: player's total earnings
-                      
-                      Example:
-                      <YourGameComponent 
-                        tasks={hotPotatoes}
-                        onScoreUpdate={updateGameScore}
-                        onGameEnd={endGame}
-                        powerUps={powerUps}
-                      />
-                    */}
-                    <div className="text-center p-8">
-                      <p className="text-gray-500 text-lg mb-4">Game is running...</p>
-                      <p className="text-gray-400 text-sm mb-4">Insert your game component here</p>
+                  <div className="w-full h-full relative">
+                    {/* Game UI Overlay */}
+                    <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20">
+                      <div className="bg-black bg-opacity-80 rounded-lg px-4 py-2 border border-yellow-400">
+                        <p className="text-yellow-400 font-bold text-lg">Score: {gameState.score}</p>
+                      </div>
+                      <div className="bg-black bg-opacity-80 rounded-lg px-4 py-2 border border-blue-400">
+                        <p className="text-blue-400 font-bold text-lg">Level: {gameState.level}</p>
+                      </div>
                       <button
                         onClick={endGame}
-                        style={{backgroundColor: '#66B2FF'}}
-                        className="mt-4 px-4 py-2 text-white rounded-lg font-bold text-sm transition-all hover:opacity-80"
+                        style={{backgroundColor: '#FF6B6B'}}
+                        className="px-4 py-2 text-white rounded-lg font-bold text-sm transition-all hover:opacity-80 shadow-lg"
                       >
                         End Game
                       </button>
+                    </div>
+                    
+                    {/* Game Canvas */}
+                    <div className="flex justify-center items-center pt-16">
+                      <canvas
+                        id="gameCanvas"
+                        width="800"
+                        height="400"
+                        className="border-2 border-yellow-400 rounded-lg shadow-2xl"
+                        style={{
+                          backgroundImage: 'url("/images/game-background.jpg")',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                          maxWidth: '100%',
+                          height: 'auto'
+                        }}
+                      >
+                        Your browser does not support the HTML5 canvas tag.
+                      </canvas>
+                    </div>
+                    
+                    {/* Game Instructions */}
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+                      <div className="bg-black bg-opacity-80 rounded-lg px-6 py-2 border border-gray-400">
+                        <p className="text-white text-sm font-semibold">
+                          🎮 Use arrow keys to move • Space to interact • Catch the falling potatoes! 🥔
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1292,15 +1480,7 @@ const ExecutiveDashboard = () => {
               </div>
 
               <div className="space-y-4 sm:space-y-6">
-                {hotPotatoes
-                  .sort((a, b) => {
-                    // First, prioritize current user's potatoes
-                    if (a.holder === currentUser && b.holder !== currentUser) return -1;
-                    if (b.holder === currentUser && a.holder !== currentUser) return 1;
-                    
-                    // If both belong to current user or both don't, sort by temperature (hottest first)
-                    return b.temperature - a.temperature;
-                  })
+                {sortTasksByPriority(hotPotatoes, currentUser)
                   .map((potato) => (
                     <HotPotatoCard key={potato.id} potato={potato} />
                   ))}
@@ -1420,4 +1600,3 @@ const ExecutiveDashboard = () => {
 };
 
 export default ExecutiveDashboard;
-

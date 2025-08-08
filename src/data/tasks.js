@@ -525,3 +525,64 @@ export const initialTasks = [
     category: "Post-Construction"
   }
 ];
+
+// Task Management Functions
+export const createNewTask = (formData, selectedEmoji) => {
+  const finalTitle = selectedEmoji ? `${selectedEmoji} ${formData.title}` : `🥔 ${formData.title}`;
+  
+  return {
+    id: `potato-${Date.now()}`,
+    title: finalTitle,
+    description: formData.description,
+    holder: formData.holder,
+    temperature: Math.floor(Math.random() * 40) + 30, // Random temp between 30-70
+    passCount: 0,
+    value: formData.value,
+    timeLeft: formData.timeLeft,
+    difficulty: formData.value > 2000 ? "epic" : formData.value > 1200 ? "rare" : "common",
+    combo: 0,
+    lastPasser: null,
+    tags: [formData.category.toLowerCase().replace(' ', '-'), "new"],
+    category: formData.category
+  };
+};
+
+// Task Utility Functions
+export const getTasksByCategory = (tasks, category) => {
+  return tasks.filter(task => task.category === category);
+};
+
+export const getTasksByHolder = (tasks, holder) => {
+  return tasks.filter(task => task.holder === holder);
+};
+
+export const getHotTasks = (tasks, temperatureThreshold = 80) => {
+  return tasks.filter(task => task.temperature >= temperatureThreshold);
+};
+
+export const sortTasksByPriority = (tasks, currentUser) => {
+  return tasks.sort((a, b) => {
+    // First, prioritize current user's tasks
+    if (a.holder === currentUser && b.holder !== currentUser) return -1;
+    if (b.holder === currentUser && a.holder !== currentUser) return 1;
+    
+    // If both belong to current user or both don't, sort by temperature (hottest first)
+    return b.temperature - a.temperature;
+  });
+};
+
+// Categories for easy reference
+export const taskCategories = [
+  'Sales',
+  'New Customer',
+  'Pre-Construction',
+  'Construction',
+  'Post-Construction',
+  'Customer Satisfaction'
+];
+
+// Popular emojis for task creation
+export const popularEmojis = [
+  '📞', '📝', '📅', '📊', '💰', '📋', '📄', '📁', '🏠', '✅',
+  '⚡', '🔧', '⭐', '🎁', '📈', '🏗️', '🔥', '💡', '📱', '🎯'
+];

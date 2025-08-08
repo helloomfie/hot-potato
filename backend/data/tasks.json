@@ -1,0 +1,154 @@
+[
+  {
+    "id": "potato-1",
+    "title": "📞 Call New Lead",
+    "description": "Call New Lead - Customer in Nassau County - Referred by Edison",
+    "holder": "nas",
+    "temperature": 85,
+    "passCount": 1,
+    "value": 1500,
+    "timeLeft": 90,
+    "difficulty": "rare",
+    "combo": 0,
+    "lastPasser": null,
+    "tags": [
+      "sales",
+      "new-lead",
+      "nassau"
+    ],
+    "category": "Sales"
+  },
+  {
+    "id": "potato-2",
+    "title": "📝 Write Notes on New Lead",
+    "description": "Lead Notes - 2,200 sqft Home - $210/month PSEG Long Island - South-facing Roof",
+    "holder": "nas",
+    "temperature": 70,
+    "passCount": 0,
+    "value": 800,
+    "timeLeft": 60,
+    "difficulty": "common",
+    "combo": 0,
+    "lastPasser": null,
+    "tags": [
+      "sales",
+      "notes",
+      "pge"
+    ],
+    "category": "Sales"
+  },
+  {
+    "id": "potato-3",
+    "title": "📅 Schedule Sales Appointment",
+    "description": "Book Sales Call - Thursday @ 3PM via Zoom - Sent Calendar Invite to Customer",
+    "holder": "nas",
+    "temperature": 90,
+    "passCount": 2,
+    "value": 1200,
+    "timeLeft": 45,
+    "difficulty": "rare",
+    "combo": 1,
+    "lastPasser": "ilan",
+    "tags": [
+      "sales",
+      "appointment",
+      "zoom"
+    ],
+    "category": "Sales"
+  },
+  {
+    "id": "potato-4",
+    "title": "📊 Complete Solar Design",
+    "description": "Design - 7.2kW System - 18 Panels - South-Facing Roof - Good Sun Access",
+    "holder": "brandon",
+    "temperature": 75,
+    "passCount": 1,
+    "value": 2200,
+    "timeLeft": 180,
+    "difficulty": "epic",
+    "combo": 0,
+    "lastPasser": "nas",
+    "tags": [
+      "sales",
+      "design",
+      "7.2kw"
+    ],
+    "category": "Sales"
+  },
+  {
+    "id": "potato-5",
+    "title": "💰 Complete Solar Quote",
+    "description": "Quote - 7.2kW System - Cash Option + 25-Year Loan - $0 Down",
+    "holder": "ilan",
+    "temperature": 80,
+    "passCount": 1,
+    "value": 1800,
+    "timeLeft": 120,
+    "difficulty": "rare",
+    "combo": 0,
+    "lastPasser": "brandon",
+    "tags": [
+      "sales",
+      "quote",
+      "financing"
+    ],
+    "category": "Sales"
+  },
+  {
+    "id": "potato-6",
+    "title": "📋 Deliver Solar Design",
+    "description": "Proposal Delivered - Sent PDF + Zoom Walkthrough - Awaiting Customer Response",
+    "holder": "ilan",
+    "temperature": 95,
+    "passCount": 3,
+    "value": 2500,
+    "timeLeft": 30,
+    "difficulty": "epic",
+    "combo": 2,
+    "lastPasser": "nas",
+    "tags": [
+      "sales",
+      "proposal",
+      "urgent"
+    ],
+    "category": "Sales"
+  },
+  {
+    "id": "potato-7",
+    "title": "📋 New Trello Customer",
+    "description": "Create Trello Card - New Project - Add Customer Info + Checklist",
+    "holder": "nas",
+    "temperature": 65,
+    "passCount": 0,
+    "value": 600,
+    "timeLeft": 90,
+    "difficulty": "common",
+    "combo": 0,
+    "lastPasser": null,
+    "tags": [
+      "customer-intake",
+      "trello",
+      "setup"
+    ],
+    "category": "New Customer"
+  },
+  {
+    "id": "potato-8",
+    "title": "📄 Request New Plans",
+    "description": "Requested Drafting - Sent Site Data to Drafter - Awaiting Plan Set",
+    "holder": "ilan",
+    "temperature": 70,
+    "passCount": 1,
+    "value": 1000,
+    "timeLeft": 240,
+    "difficulty": "rare",
+    "combo": 0,
+    "lastPasser": "nas",
+    "tags": [
+      "customer-intake",
+      "plans",
+      "drafting"
+    ],
+    "category": "New Customer"
+  }
+]
