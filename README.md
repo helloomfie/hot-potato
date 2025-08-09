@@ -1,132 +1,105 @@
-# 🥔 hot-potato - your usual task management tool with gaming elements
+# HOT-POTATO - TASK MANAGEMENT WITH GAMING ELEMENTS
 
-> common task management enhanced with gaming mechanics for better engagement and data visualization.
+Common task management enhanced with gaming mechanics for better engagement and data visualization.
 
-## 🎯 what is hot-potato?
+## ARCHITECTURE OVERVIEW
 
-hot-potato is **your usual task management tool** (like any todo list) but with gaming elements layered on top. the core is still about managing your everyday tasks, but we've added game mechanics to make it more engaging and provide better ways to visualize your data.
-
-**the concept**: your common task list gets enhanced with:
-- visual game representations of your actual work data
-- gamification to make boring task management more engaging  
-- real-time sync between traditional list view and interactive game view
-- better data visualization through game mechanics
-
-## 🔄 how list + game sync works
-
-**your task data lives in one place** and gets displayed in multiple ways:
-
-- **📋 list view**: traditional task management (assign, complete, track)
-- **🎮 game view**: same data visualized as an interactive game
-- **📊 board view**: same data in kanban format
-- **🏆 leaderboard**: same data shown as team competition
-
-when you complete a task in the list → it immediately updates in the game  
-when you interact in the game → it affects your real task data
-
-## ✨ gaming enhancements to regular tasks
-
-### temperature system
-- tasks naturally "heat up" over time to create urgency
-- visual indicators show priority (🫖 → ♨️ → 🌶️ → 🔥)
-- hotter tasks = higher rewards when completed
-
-### task passing mechanics  
-- pass tasks between team members like a real "hot potato"
-- builds collaboration and prevents bottlenecks
-- tracks who passed what and combo streaks
-
-### points & rewards
-- earn points and revenue for completing tasks
-- temperature bonuses for urgent completions
-- power-ups that affect real task behavior
-
-### achievements & progression
-- unlock rewards based on real work patterns
-- daily streaks, speed completion, team collaboration
-- gamified stats that reflect actual productivity
-
-## 🛠️ tech stack
-
-- **react 18** with hooks for ui
-- **html5 canvas** for game visualization  
-- **lucide react** for icons
-- **tailwind css** for styling
-- **restful api** for data persistence
-
-## 🚀 setup
-
-```bash
-# clone and install
-git clone [repository-url]
-cd hot-potato-app
-npm install
-
-# configure environment  
-cp .env.example .env.local
-# edit .env.local with your api endpoints
-
-# start development server
-npm start
-# open http://localhost:3000
-```
-
-## 📋 using the task management
-
-### basic task workflow (like any common task manager)
-1. **create**: click "new task" → set title, description, assignee, deadline
-2. **assign**: pick team member and category  
-3. **track**: monitor progress and updates
-4. **complete**: mark done when finished
-
-### enhanced with gaming
-- **visual priority**: tasks get "hotter" over time 
-- **team collaboration**: pass tasks strategically between members
-- **immediate feedback**: points, streaks, and achievements for motivation
-- **data visualization**: see your work data as an interactive game
-
-## 📊 different views of same data
-
-- **📋 list**: classic task list with gaming elements overlaid
-- **🎮 game**: interactive canvas showing your tasks as game elements  
-- **📊 board**: kanban view (in progress → review → completed)
-- **🏆 leaderboard**: team stats and competition based on real work
-
-## ⚙️ configuration
-
-### team setup
-edit team members in `executivedashboard.js`:
-```javascript
-const teamstats = {
-  member1: {
-    name: "team member name",
-    avatar: "👤", 
-    title: "role"
-  }
-};
-```
-
-### task categories
-edit categories in `src/data/tasks.js`:
-```javascript
-export const taskcategories = [
-  'sales', 'new customer', 'construction', 
-  'post-construction', 'customer satisfaction'
-];
-```
-
-## 🎮 game features enhance real work
-
-- **🛡️ shield**: protects tasks from heating up (real deadline extension)
-- **⚡ boost**: double points for next completion (motivation)
-- **❄️ freeze**: stops task timer (pause deadline pressure)
-
-## 🔧 scripts
-
-- `npm start` - development server
-- `npm test` - run tests  
-- `npm run build` - production build
-
----
-
-**sunlab internal tool** - make your usual task management actually engaging! 🔥
+```mermaid
+flowchart TD
+    %% User Interface Layer
+    A[User Interface<br/>React SPA] --> B[ExecutiveDashboard.js<br/>Main Component<br/>State Orchestrator]
+    
+    %% Main Views - All use same data
+    B --> C[List View<br/>Traditional Task Manager<br/>HotPotatoCard Components]
+    B --> D[Game View<br/>HTML5 Canvas<br/>Interactive Visualization]
+    B --> E[Board View<br/>Kanban Style<br/>Drag & Drop Cards]
+    B --> F[Leaderboard View<br/>Team Competition<br/>Performance Stats]
+    
+    %% Core State Management
+    B --> G[React State Hooks<br/>useState/useEffect<br/>Real-time Updates]
+    G --> H[hotPotatoes State<br/>Task Array<br/>Temperature System]
+    G --> I[teamStats State<br/>User Profiles<br/>Avatars & Levels]
+    G --> J[powerUps State<br/>Shield/Boost/Freeze<br/>Game Mechanics]
+    G --> K[gameState<br/>Score/Level<br/>Playing Status]
+    
+    %% API Communication Layer
+    B --> L[services/api.js<br/>REST API Client<br/>Error Handling]
+    L --> M[getAllTasks<br/>Fetch All Tasks<br/>GET /tasks]
+    L --> N[createTask<br/>Add New Task<br/>POST /tasks]
+    L --> O[updateTask<br/>Modify Existing<br/>PUT /tasks/:id]
+    L --> P[deleteTask<br/>Remove Task<br/>DELETE /tasks/:id]
+    L --> Q[handleAPIError<br/>Error Classification<br/>Fallback Logic]
+    L --> R[checkConnection<br/>Health Check<br/>Connection Status]
+    
+    %% Backend Server
+    M --> S[Backend Server<br/>RESTful API<br/>Database Storage]
+    N --> S
+    O --> S
+    P --> S
+    R --> S
+    
+    %% Game Engine Core
+    D --> T[Game.js<br/>HTML5 Canvas Engine<br/>Animation Loop]
+    T --> U[Canvas Rendering<br/>Sprite Drawing<br/>Background Images]
+    T --> V[Player Interactions<br/>Click Events<br/>Task Selection]
+    T --> W[Task Visualization<br/>Red Circles<br/>Temperature Display]
+    T --> X[Spirit Characters<br/>Team Avatars<br/>Location Markers]
+    
+    %% Data Processing Utilities
+    B --> Y[data/tasks.js<br/>Task Utilities<br/>Business Logic]
+    Y --> Z[createNewTask<br/>Task Factory<br/>ID Generation]
+    Y --> AA[sortTasksByPriority<br/>User Tasks First<br/>Temperature Sort]
+    Y --> BB[taskCategories<br/>Sales/Construction<br/>Category System]
+    Y --> CC[initialTasks<br/>Demo Data<br/>Offline Fallback]
+    
+    %% Archive System
+    B --> DD[data/archive.js<br/>Completed Tasks<br/>Historical Data]
+    DD --> EE[archiveTask<br/>Store Completion<br/>Earned Value]
+    
+    %% Static Assets
+    B --> FF[myimages/<br/>Static Assets<br/>Image Resources]
+    FF --> GG[firstlogo.png<br/>App Branding<br/>SUNLAB Logo]
+    FF --> HH[background.png<br/>Game Background<br/>Canvas Asset]
+    
+    %% Offline Support System
+    L --> II[Offline Fallback<br/>Local Operation<br/>Connection Loss]
+    II --> CC
+    II --> JJ[Local State<br/>Memory Storage<br/>No Persistence]
+    
+    %% Real-time Timer System
+    G --> KK[Timer System<br/>setInterval<br/>1 Second Updates]
+    KK --> LL[Temperature Updates<br/>Task Heating<br/>Urgency System]
+    KK --> MM[Power-up Expiration<br/>Timed Effects<br/>Auto Disable]
+    KK --> NN[Game Clock<br/>Real-time Display<br/>Current Time]
+    
+    %% Modal System
+    B --> OO[Pass Task Modal<br/>Team Selection<br/>Task Transfer]
+    B --> PP[Create Task Modal<br/>Form Interface<br/>Emoji Selection]
+    B --> QQ[Shop Modal<br/>Power-up Purchase<br/>Revenue System]
+    
+    %% Game-Task Integration
+    T --> RR[handleCompletePotato<br/>Task Completion<br/>Points Calculation]
+    T --> SS[Task Selection<br/>Spirit Click<br/>Modal Trigger]
+    RR --> L
+    SS --> OO
+    
+    %% Styling System
+    B --> TT[Tailwind CSS<br/>Utility Classes<br/>Responsive Design]
+    B --> UU[Dynamic Styles<br/>Inline Styles<br/>Category Colors]
+    
+    %% Error Handling & Status
+    L --> VV[Connection Status<br/>Online/Offline<br/>Error Display]
+    L --> WW[Error Notifications<br/>User Feedback<br/>Recovery Options]
+    
+    %% Achievement System
+    G --> XX[Achievement Stats<br/>Streaks & Progress<br/>Unlockable Rewards]
+    XX --> YY[Speed Runner<br/>Fast Completion<br/>Boost Rewards]
+    XX --> ZZ[Pass Streak<br/>Team Collaboration<br/>Shield Rewards]
+    XX --> AAA[Epic Hunter<br/>High Value Tasks<br/>Freeze Rewards]
+    
+    style A fill:#e1f5fe,stroke:#01579b,stroke-width:3px
+    style S fill:#ffcdd2,stroke:#c62828,stroke-width:3px
+    style T fill:#f3e5f5,stroke:#6a1b9a,stroke-width:3px
+    style L fill:#fff3e0,stroke:#e65100,stroke-width:3px
+    style G fill:#e8f5e8,stroke:#2e7d32,stroke-width:3px
+    style FF fill:#fce4ec,stroke:#c2185b,stroke-width:3px

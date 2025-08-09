@@ -4,7 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = 8000; // Changed to port 8000 to avoid conflicts
 const TASKS_FILE = path.join(__dirname, 'data', 'tasks.json');
 
 // Middleware
@@ -173,12 +173,22 @@ app.get('/', (req, res) => {
   res.json({
     message: '🔥 Welcome to Hot Potato API!',
     endpoints: {
+      'GET /api/health': 'Health check endpoint',
       'GET /api/tasks': 'Get all tasks',
       'POST /api/tasks': 'Create a new task',
       'PUT /api/tasks/:id': 'Update a task',
       'DELETE /api/tasks/:id': 'Delete a task'
     },
     status: 'Server is running! 🚀'
+  });
+});
+
+// Health check endpoint for connection testing
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    message: 'Hot Potato API is healthy! 🔥'
   });
 });
 
@@ -264,6 +274,7 @@ const startServer = async () => {
     console.log(`🔥 Hot Potato Server running on http://localhost:${PORT}`);
     console.log(`📝 Tasks will be saved to: ${TASKS_FILE}`);
     console.log(`🌐 API available at: http://localhost:${PORT}/api/tasks`);
+    console.log(`💚 Health check at: http://localhost:${PORT}/api/health`);
   });
 };
 
