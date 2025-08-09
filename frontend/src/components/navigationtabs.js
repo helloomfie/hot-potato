@@ -3,11 +3,11 @@ import { Flame, Trophy, Activity, Sparkles, PiggyBank } from 'lucide-react';
 
 const NavigationTabs = ({ selectedView, setSelectedView }) => {
   const tabs = [
-    { id: 'game', label: 'Game 🎮', icon: Sparkles },
-    { id: 'list', label: 'List 🥔', icon: Flame },
-    { id: 'board', label: 'Board 📊', icon: Activity },
-    { id: 'leaderboard', label: 'Leaders 🏆', icon: Trophy },
-    { id: 'bank', label: 'Bank 💰', icon: PiggyBank }
+    { id: 'game', label: 'Game', icon: Sparkles },
+    { id: 'list', label: 'List', icon: Flame },
+    { id: 'board', label: 'Board', icon: Activity },
+    { id: 'leaderboard', label: 'Leaders', icon: Trophy },
+    { id: 'bank', label: 'Bank', icon: PiggyBank }
   ];
 
   return (
