@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, TrendingUp, Award, Calendar, PiggyBank, Target } from 'lucide-react';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+
 const Bank = ({ teamStats, hotPotatoes, currentUser }) => {
   const [playerEarnings, setPlayerEarnings] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   const [weeklyGoals] = useState({
     ilan: 15000,
     nas: 18000,
@@ -12,55 +17,42 @@ const Bank = ({ teamStats, hotPotatoes, currentUser }) => {
   });
 
   useEffect(() => {
-    const earnings = {
-      ilan: { 
-        total: 45230, 
-        thisWeek: 8750, 
-        thisMonth: 28340,
-        completedTasks: 23,
-        avgPerTask: 1967,
-        bestTask: 4500,
-        streak: 7
-      },
-      nas: { 
-        total: 52890, 
-        thisWeek: 12400, 
-        thisMonth: 35670,
-        completedTasks: 31,
-        avgPerTask: 1706,
-        bestTask: 5000,
-        streak: 12
-      },
-      juan: { 
-        total: 38450, 
-        thisWeek: 6200, 
-        thisMonth: 22100,
-        completedTasks: 18,
-        avgPerTask: 2136,
-        bestTask: 3800,
-        streak: 4
-      },
-      jessie: { 
-        total: 41670, 
-        thisWeek: 9300, 
-        thisMonth: 26540,
-        completedTasks: 20,
-        avgPerTask: 2084,
-        bestTask: 4200,
-        streak: 9
-      },
-      brandon: { 
-        total: 47820, 
-        thisWeek: 10800, 
-        thisMonth: 31290,
-        completedTasks: 25,
-        avgPerTask: 1913,
-        bestTask: 4800,
-        streak: 6
+    const fetchEarningsData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch all users' earnings from backend
+        const earningsResponse = await fetch(`${API_BASE_URL}/earnings/all`);
+        if (!earningsResponse.ok) {
+          throw new Error('Failed to fetch earnings data');
+        }
+        const earningsData = await earningsResponse.json();
+        
+        // Fetch potential earnings (for future use)
+        const potentialResponse = await fetch(`${API_BASE_URL}/earnings/potential`);
+        if (!potentialResponse.ok) {
+          throw new Error('Failed to fetch potential earnings');
+        }
+        // const potentialData = await potentialResponse.json();
+        
+        setPlayerEarnings(earningsData.data || {});
+        setError(null);
+      } catch (error) {
+        console.error('Error fetching earnings data:', error);
+        setError(error.message);
+        
+        // Fallback to empty data if API fails
+        setPlayerEarnings({});
+      } finally {
+        setLoading(false);
       }
     };
 
-    setPlayerEarnings(earnings);
+    fetchEarningsData();
+    
+    // Refresh earnings data every 30 seconds
+    const interval = setInterval(fetchEarningsData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const getDifficultyMultiplier = (difficulty) => {
@@ -92,15 +84,40 @@ const Bank = ({ teamStats, hotPotatoes, currentUser }) => {
     .map(([id, data]) => ({ id, ...data, player: teamStats[id] }))
     .sort((a, b) => b.thisWeek - a.thisWeek);
 
-  const myEarnings = playerEarnings[currentUser] || {};
+  const myEarnings = playerEarnings[currentUser] || {
+    total: 0,
+    thisWeek: 0,
+    thisMonth: 0,
+    completedTasks: 0,
+    avgPerTask: 0,
+    bestTask: 0
+  };
+  
   const myGoalProgress = getProgressToGoal(currentUser);
+
+  if (loading) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div style={{backgroundColor: '#002C54'}} className="rounded-lg p-4 sm:p-6">
+          <div className="text-white text-center">Loading earnings data...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {error && (
+        <div className="bg-red-500 text-white p-4 rounded-lg">
+          ⚠️ Error loading earnings: {error}. Showing limited data.
+        </div>
+      )}
+      
       <div style={{backgroundColor: '#002C54'}} className="rounded-lg p-4 sm:p-6">
         <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-3" style={{fontFamily: 'Montserrat, sans-serif'}}>
           <PiggyBank className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
           My Earnings Dashboard
+          <span className="text-sm font-normal text-gray-300">(Real-time from completed tasks)</span>
         </h2>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
@@ -108,21 +125,25 @@ const Bank = ({ teamStats, hotPotatoes, currentUser }) => {
             <DollarSign className="w-6 h-6 mx-auto mb-2" />
             <div className="text-lg sm:text-2xl font-bold">${myEarnings.total?.toLocaleString() || 0}</div>
             <div className="text-xs sm:text-sm">Total Earned</div>
+            <div className="text-xs opacity-75">{myEarnings.completedTasks || 0} tasks</div>
           </div>
           <div className="bg-blue-500 rounded-lg p-3 sm:p-4 text-center text-white">
             <Calendar className="w-6 h-6 mx-auto mb-2" />
             <div className="text-lg sm:text-2xl font-bold">${myEarnings.thisWeek?.toLocaleString() || 0}</div>
             <div className="text-xs sm:text-sm">This Week</div>
+            <div className="text-xs opacity-75">{myEarnings.thisWeekTasks || 0} tasks</div>
           </div>
           <div className="bg-purple-500 rounded-lg p-3 sm:p-4 text-center text-white">
             <TrendingUp className="w-6 h-6 mx-auto mb-2" />
             <div className="text-lg sm:text-2xl font-bold">${myEarnings.avgPerTask?.toLocaleString() || 0}</div>
             <div className="text-xs sm:text-sm">Avg/Task</div>
+            <div className="text-xs opacity-75">per completion</div>
           </div>
           <div className="bg-yellow-500 rounded-lg p-3 sm:p-4 text-center text-black">
             <Award className="w-6 h-6 mx-auto mb-2" />
             <div className="text-lg sm:text-2xl font-bold">${myEarnings.bestTask?.toLocaleString() || 0}</div>
             <div className="text-xs sm:text-sm">Best Task</div>
+            <div className="text-xs opacity-75">highest earning</div>
           </div>
         </div>
 
@@ -147,16 +168,22 @@ const Bank = ({ teamStats, hotPotatoes, currentUser }) => {
             <span>${myEarnings.thisWeek?.toLocaleString() || 0}</span>
             <span>${weeklyGoals[currentUser]?.toLocaleString() || 0}</span>
           </div>
+          {myGoalProgress >= 100 && (
+            <div className="text-center mt-2 text-green-400 font-bold">
+              🎉 Goal Achieved! 🎉
+            </div>
+          )}
         </div>
       </div>
 
       <div style={{backgroundColor: '#002C54'}} className="rounded-lg p-4 sm:p-6">
         <h3 className="text-lg sm:text-xl font-bold text-white mb-4" style={{fontFamily: 'Montserrat, sans-serif'}}>
           💰 Weekly Earnings Leaderboard
+          <span className="text-sm font-normal text-gray-300 ml-2">(From archived tasks only)</span>
         </h3>
         
         <div className="space-y-3">
-          {topEarners.map((earner, index) => (
+          {topEarners.length > 0 ? topEarners.map((earner, index) => (
             <div 
               key={earner.id} 
               className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg ${
@@ -182,7 +209,11 @@ const Bank = ({ teamStats, hotPotatoes, currentUser }) => {
                 <div className="text-gray-400 text-sm">total</div>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="text-center text-gray-400 py-8">
+              No earnings yet. Complete some tasks to start earning! 🚀
+            </div>
+          )}
         </div>
       </div>
 
