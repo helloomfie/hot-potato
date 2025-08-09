@@ -103,7 +103,7 @@ const ExecutiveDashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Game functions
+  // Game functions - SIMPLIFIED
   const updateScore = (points) => {
     setGameState(prev => ({ ...prev, score: prev.score + points }));
   };
@@ -111,6 +111,7 @@ const ExecutiveDashboard = () => {
   const startGame = () => {
     setGameState(prev => ({ ...prev, isPlaying: true }));
     
+    // Clean game initialization - no extra canvas settings
     setTimeout(() => {
       const game = new HotPotatoGame(
         'gameCanvas', 

@@ -22,11 +22,10 @@ const GameView = ({ gameState, startGame, endGame, hotPotatoes, currentUser }) =
               <button
                 onClick={startGame}
                 style={{backgroundColor: '#FFCC00'}}
-                className="px-8 py-4 text-black rounded-lg font-bold text-lg transition-all hover:opacity-80 hover:scale-105 shadow-lg"
+                className="px-8 py-2 text-black rounded-lg font-bold text-lg transition-all hover:opacity-80 hover:scale-105 shadow-lg"
               >
                 Start Game 🎮
               </button>
-              <p className="text-gray-300 text-sm mt-4 drop-shadow-lg">Click spirits on locations to interact with tasks!</p>
             </div>
           ) : (
             <div className="w-full h-full relative">
@@ -51,24 +50,13 @@ const GameView = ({ gameState, startGame, endGame, hotPotatoes, currentUser }) =
                   id="gameCanvas"
                   width="800"
                   height="400"
-                  className="border-2 border-yellow-400 rounded-lg shadow-2xl"
                   style={{
-                    backgroundImage: 'url("/images/background.png")',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
                     maxWidth: '100%',
                     height: 'auto'
                   }}
                 >
                   Your browser does not support the HTML5 canvas tag.
                 </canvas>
-              </div>
-              
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-                <div className="bg-black bg-opacity-80 rounded-lg px-6 py-2 border border-gray-400">
-                  <p className="text-white text-sm font-semibold">🎮 Click spirits to view tasks • ESC to close • Red circles show task count</p>
-                </div>
               </div>
             </div>
           )}
