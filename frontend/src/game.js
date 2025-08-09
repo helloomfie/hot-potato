@@ -1,21 +1,38 @@
 class HotPotatoGame {
   constructor(canvasId, gameState, updateScore, hotPotatoes, teamStats, currentUser, onTaskClick, onTaskComplete) {
+    // Ensure canvas exists before proceeding
     this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) {
+      console.error(`Canvas element with ID '${canvasId}' not found`);
+      throw new Error(`Canvas element with ID '${canvasId}' not found`);
+    }
+    
     this.ctx = this.canvas.getContext('2d');
-    this.hotPotatoes = hotPotatoes;
-    this.teamStats = teamStats;
+    if (!this.ctx) {
+      console.error('Could not get 2D context from canvas');
+      throw new Error('Could not get 2D context from canvas');
+    }
+    
+    this.hotPotatoes = hotPotatoes || [];
+    this.teamStats = teamStats || {};
     this.currentUser = currentUser;
-    this.updateScore = updateScore;
-    this.onTaskClick = onTaskClick;
-    this.onTaskComplete = onTaskComplete;
+    this.updateScore = updateScore || (() => {});
+    this.onTaskClick = onTaskClick || (() => {});
+    this.onTaskComplete = onTaskComplete || (() => {});
     
     this.isRunning = false;
     this.spirits = [];
     this.locations = this.initializeLocations();
     this.hoveredSpirit = null;
-    this.loadImages();
-    this.resizeCanvas();
-    this.bindEvents();
+    
+    try {
+      this.loadImages();
+      this.resizeCanvas();
+      this.bindEvents();
+    } catch (error) {
+      console.error('Error initializing HotPotatoGame:', error);
+      throw error;
+    }
   }
   
   async loadImages() {
@@ -76,7 +93,7 @@ class HotPotatoGame {
   
   resizeCanvas() {
     this.canvas.width = 800;
-    this.canvas.height = 400;
+    this.canvas.height = 500;
   }
   
   start() {
@@ -92,14 +109,14 @@ class HotPotatoGame {
   bindEvents() {
     this.canvas.addEventListener('mousemove', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+      const mouseX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+      const mouseY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
       
       let newHoveredSpirit = null;
       
       for (let spirit of this.spirits) {
         const distance = Math.sqrt((mouseX - spirit.x) ** 2 + (mouseY - spirit.y) ** 2);
-        if (distance < 40) {
+        if (distance < 30) {
           newHoveredSpirit = spirit;
           break;
         }
@@ -111,12 +128,12 @@ class HotPotatoGame {
     
     this.canvas.addEventListener('click', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+      const mouseX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+      const mouseY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
       
       for (let spirit of this.spirits) {
         const distance = Math.sqrt((mouseX - spirit.x) ** 2 + (mouseY - spirit.y) ** 2);
-        if (distance < 40) {
+        if (distance < 30) {
           this.handleSpiritClick(spirit);
           return;
         }
@@ -166,7 +183,7 @@ class HotPotatoGame {
       
       if (spiritImage && spiritImage.complete && spiritImage.naturalWidth > 0) {
         const isHovered = this.hoveredSpirit === spirit;
-        const imageSize = isHovered ? 80 : 50;
+        const imageSize = isHovered ? 90 : 60; // Smaller spirits: 60 default, 90 on hover
         
         this.ctx.imageSmoothingEnabled = true;
         this.ctx.imageSmoothingQuality = 'high';
