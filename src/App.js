@@ -90,7 +90,6 @@ const ExecutiveDashboard = () => {
     timeLeft: 120
   });
 
-  // Backend integration states
   const [hotPotatoes, setHotPotatoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -103,18 +102,17 @@ const ExecutiveDashboard = () => {
   const [activePowerUps, setActivePowerUps] = useState({
     shield: false,
     boost: false,
-    freeze: null // stores potato ID if frozen
+    freeze: null
   });
   const [powerUpNotification, setPowerUpNotification] = useState(null);
   const [achievementStats, setAchievementStats] = useState({
-    speedRunner: 0, // potatoes completed under 30s
-    passStreak: 0,  // current pass streak
-    epicCompleted: 0, // epic potatoes completed
+    speedRunner: 0,
+    passStreak: 0,
+    epicCompleted: 0,
     dailyLogin: new Date().toDateString()
   });
   const [myTotalRevenue, setMyTotalRevenue] = useState(45000);
   
-  // Game state
   const [gameState, setGameState] = useState({
     isPlaying: false,
     score: 0,
@@ -122,7 +120,6 @@ const ExecutiveDashboard = () => {
     gameData: null
   });
 
-  // Load tasks from backend when component mounts
   useEffect(() => {
     const loadTasks = async () => {
       try {
@@ -132,8 +129,6 @@ const ExecutiveDashboard = () => {
         setError(null);
       } catch (err) {
         setError('Failed to load tasks from server');
-        console.error('Error loading tasks:', err);
-        // Fallback to local data if backend fails
         setHotPotatoes(initialTasks);
       } finally {
         setLoading(false);
@@ -143,7 +138,6 @@ const ExecutiveDashboard = () => {
     loadTasks();
   }, []);
 
-  // Game functions
   const startGame = () => {
     setGameState(prev => ({ ...prev, isPlaying: true }));
   };
@@ -152,25 +146,17 @@ const ExecutiveDashboard = () => {
     setGameState(prev => ({ ...prev, isPlaying: false }));
   };
 
-  // Function for future game integration
-  // eslint-disable-next-line no-unused-vars
   const updateGameScore = (points) => {
     setGameState(prev => ({ ...prev, score: prev.score + points }));
   };
 
-  // Canvas initialization and game loop
   useEffect(() => {
     if (gameState.isPlaying) {
       const canvas = document.getElementById('gameCanvas');
       if (canvas) {
         const ctx = canvas.getContext('2d');
         
-        // Basic canvas setup
         const setupCanvas = () => {
-          // Canvas is ready for your game logic
-          console.log('Canvas ready!', canvas.width, 'x', canvas.height);
-          
-          // Example: Add a simple test element
           ctx.fillStyle = 'rgba(255, 204, 0, 0.8)';
           ctx.font = '24px Montserrat';
           ctx.textAlign = 'center';
@@ -179,24 +165,18 @@ const ExecutiveDashboard = () => {
 
         setupCanvas();
 
-        // Add event listeners for game controls
         const handleKeyPress = (e) => {
           switch(e.key) {
             case 'ArrowLeft':
-              console.log('Left arrow pressed');
               break;
             case 'ArrowRight':
-              console.log('Right arrow pressed');
               break;
             case 'ArrowUp':
-              console.log('Up arrow pressed');
               break;
             case 'ArrowDown':
-              console.log('Down arrow pressed');
               break;
             case ' ':
               e.preventDefault();
-              console.log('Space pressed');
               break;
             default:
               break;
@@ -205,7 +185,6 @@ const ExecutiveDashboard = () => {
 
         window.addEventListener('keydown', handleKeyPress);
 
-        // Cleanup
         return () => {
           window.removeEventListener('keydown', handleKeyPress);
         };
@@ -231,7 +210,6 @@ const ExecutiveDashboard = () => {
     }
   });
 
-  // Auto-sync potatoes to board columns based on temperature
   useEffect(() => {
     const updatedColumns = {
       inProgress: {
@@ -331,7 +309,6 @@ const ExecutiveDashboard = () => {
   ];
 
   useEffect(() => {
-    // Check for daily login bonus
     const today = new Date().toDateString();
     if (achievementStats.dailyLogin !== today && awardPowerUp) {
       const powerUpTypes = ['shield', 'boost', 'freeze'];
@@ -341,16 +318,13 @@ const ExecutiveDashboard = () => {
         setAchievementStats(prev => ({ ...prev, dailyLogin: today }));
       }, 1000);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
       
-      // Update potato timers
       setHotPotatoes(prev => prev.map(potato => {
-        // Don't decrease time if potato is frozen
         if (activePowerUps.freeze === potato.id) {
           return potato;
         }
@@ -406,19 +380,17 @@ const ExecutiveDashboard = () => {
         [type]: prev[type] - 1
       }));
       
-      // Apply power-up effects
       switch(type) {
         case 'shield':
           setActivePowerUps(prev => ({ ...prev, shield: true }));
           setTimeout(() => {
             setActivePowerUps(prev => ({ ...prev, shield: false }));
-          }, 30000); // Shield lasts 30 seconds
+          }, 30000);
           break;
         case 'boost':
           setActivePowerUps(prev => ({ ...prev, boost: true }));
           break;
         case 'freeze':
-          // Freeze applies to the hottest task you own
           const myHottestPotato = hotPotatoes
             .filter(p => p.holder === currentUser)
             .sort((a, b) => b.temperature - a.temperature)[0];
@@ -426,7 +398,7 @@ const ExecutiveDashboard = () => {
             setActivePowerUps(prev => ({ ...prev, freeze: myHottestPotato.id }));
             setTimeout(() => {
               setActivePowerUps(prev => ({ ...prev, freeze: null }));
-            }, 60000); // Freeze lasts 60 seconds
+            }, 60000);
           }
           break;
         default:
@@ -439,11 +411,9 @@ const ExecutiveDashboard = () => {
 
   const handlePassPotato = async (potato, toUser) => {
     try {
-      // Check for pass streak achievement
       if (potato.lastPasser === currentUser) {
         setAchievementStats(prev => ({ ...prev, passStreak: prev.passStreak + 1 }));
         
-        // Award shield for 5 passes in a row
         if (achievementStats.passStreak + 1 === 5) {
           awardPowerUp('shield', '5 passes in a row!');
           setAchievementStats(prev => ({ ...prev, passStreak: 0 }));
@@ -469,9 +439,7 @@ const ExecutiveDashboard = () => {
       setShowPassModal(false);
       setSelectedPotato(null);
     } catch (error) {
-      console.error('Error passing potato:', error);
       setError('Failed to pass task');
-      // Fallback to local update if API fails
       const newPotatoes = hotPotatoes.map(p => {
         if (p.id === potato.id) {
           return {
@@ -504,9 +472,7 @@ const ExecutiveDashboard = () => {
       setCelebrationBoost(activePowerUps.boost);
       setMyTotalRevenue(prev => prev + earnedValue);
       
-      // Check achievements
-      // Speed runner achievement - if potato has high time left when completed, it was done quickly
-      if (potato.timeLeft > 90) { // Completed with more than 90 seconds remaining
+      if (potato.timeLeft > 90) {
         setAchievementStats(prev => ({ ...prev, speedRunner: prev.speedRunner + 1 }));
         if ((achievementStats.speedRunner + 1) % 3 === 0) {
           awardPowerUp('boost', '3 speed runs completed!');
@@ -518,7 +484,6 @@ const ExecutiveDashboard = () => {
         awardPowerUp('freeze', 'Epic task completed!');
       }
       
-      // Reset boost after use
       if (activePowerUps.boost) {
         setActivePowerUps(prev => ({ ...prev, boost: false }));
       }
@@ -526,9 +491,7 @@ const ExecutiveDashboard = () => {
       setShowCelebration(true);
       setTimeout(() => setShowCelebration(false), 3000);
     } catch (error) {
-      console.error('Error completing potato:', error);
       setError('Failed to complete task');
-      // Fallback to local deletion if API fails
       const temperatureBonus = potato.temperature > 80 ? 1.5 : 1;
       const boostBonus = activePowerUps.boost ? 2 : 1;
       const earnedValue = Math.round(potato.value * temperatureBonus * boostBonus);
@@ -562,7 +525,6 @@ const ExecutiveDashboard = () => {
       setHotPotatoes([...hotPotatoes, newTask]);
       setShowCreateModal(false);
       
-      // Reset form
       setNewPotatoForm({
         title: '',
         description: '',
@@ -573,14 +535,11 @@ const ExecutiveDashboard = () => {
       });
       setSelectedEmoji('');
     } catch (error) {
-      console.error('Error creating task:', error);
       setError('Failed to create task');
-      // Fallback to local creation if API fails
       const newTask = createNewTask(newPotatoForm, selectedEmoji);
       setHotPotatoes([...hotPotatoes, newTask]);
       setShowCreateModal(false);
       
-      // Reset form
       setNewPotatoForm({
         title: '',
         description: '',
@@ -629,7 +588,6 @@ const ExecutiveDashboard = () => {
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #66B2FF 0%, #002C54 100%)'}}>
@@ -642,7 +600,6 @@ const ExecutiveDashboard = () => {
     );
   }
 
-  // Error state
   if (error && hotPotatoes.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #66B2FF 0%, #002C54 100%)'}}>
@@ -833,7 +790,6 @@ const ExecutiveDashboard = () => {
 
         <div className="mt-4 sm:mt-6 pt-3 sm:pt-4">
           <div className="text-sm sm:text-base mb-2 sm:mb-3 font-bold">Power-ups Available:</div>
-          {/* Active Power-ups Display */}
           {(activePowerUps.shield || activePowerUps.boost || activePowerUps.freeze) && (
             <div className="mb-3 p-2 bg-yellow-400 bg-opacity-20 rounded-lg">
               <div className="text-xs sm:text-sm text-yellow-300 font-semibold mb-1">Active:</div>
@@ -937,7 +893,6 @@ const ExecutiveDashboard = () => {
 
   return (
     <div className="min-h-screen" style={{background: 'linear-gradient(135deg, #66B2FF 0%, #002C54 100%)', fontFamily: 'Montserrat, sans-serif'}}>
-      {/* Error notification banner */}
       {error && hotPotatoes.length > 0 && (
         <div className="fixed top-4 left-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center justify-between">
           <span className="text-sm">⚠️ Server connection issue - running in offline mode</span>
@@ -1338,7 +1293,6 @@ const ExecutiveDashboard = () => {
               </div>
             </div>
             
-            {/* Game Container */}
             <div id="game-container" className="w-full">
               <div className="rounded-lg min-h-[500px] flex flex-col items-center justify-center relative overflow-hidden bg-gray-900">
                 {!gameState.isPlaying ? (
@@ -1356,12 +1310,11 @@ const ExecutiveDashboard = () => {
                       Start Game 🎮
                     </button>
                     <p className="text-gray-300 text-sm mt-4 drop-shadow-lg">
-                      Catch the hot potatoes and complete tasks!
+                      Pass or complete hot potatoes and earn points!
                     </p>
                   </div>
                 ) : (
                   <div className="w-full h-full relative">
-                    {/* Game UI Overlay */}
                     <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20">
                       <div className="bg-black bg-opacity-80 rounded-lg px-4 py-2 border border-yellow-400">
                         <p className="text-yellow-400 font-bold text-lg">Score: {gameState.score}</p>
@@ -1378,7 +1331,6 @@ const ExecutiveDashboard = () => {
                       </button>
                     </div>
                     
-                    {/* Game Canvas */}
                     <div className="flex justify-center items-center pt-16">
                       <canvas
                         id="gameCanvas"
@@ -1386,7 +1338,7 @@ const ExecutiveDashboard = () => {
                         height="400"
                         className="border-2 border-yellow-400 rounded-lg shadow-2xl"
                         style={{
-                          backgroundImage: 'url("/images/game-background.jpg")',
+                          backgroundImage: 'url("/images/background.png")',
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
@@ -1398,11 +1350,10 @@ const ExecutiveDashboard = () => {
                       </canvas>
                     </div>
                     
-                    {/* Game Instructions */}
                     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
                       <div className="bg-black bg-opacity-80 rounded-lg px-6 py-2 border border-gray-400">
                         <p className="text-white text-sm font-semibold">
-                          🎮 Use arrow keys to move • Space to interact • Catch the falling potatoes! 🥔
+                          🎮 Use arrow keys to move • Space to interact • Pass or complete potatoes! 🥔
                         </p>
                       </div>
                     </div>
@@ -1411,7 +1362,6 @@ const ExecutiveDashboard = () => {
               </div>
             </div>
             
-            {/* Game Stats/Controls Section */}
             <div id="game-controls" className="mt-6 grid grid-cols-3 gap-4">
               <div className="bg-gray-100 rounded-lg p-4 text-center">
                 <div className="text-2xl mb-1">🏆</div>
