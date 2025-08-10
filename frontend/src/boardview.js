@@ -7,17 +7,17 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
   const [boardColumns, setBoardColumns] = useState({
     inProgress: {
       title: "In Progress 🚀", 
-      color: "#FFCC00",
+      color: "#1E3A8A", // Deep blue
       cards: []
     },
     review: {
       title: "Review 👀",
-      color: "#4A90E2", 
+      color: "#1E40AF", // Slightly different blue
       cards: []
     },
     completed: {
       title: "Completed ✅",
-      color: "#002C54",
+      color: "#1D4ED8", // Bright blue
       cards: []
     }
   });
@@ -26,7 +26,7 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
     const updatedColumns = {
       inProgress: {
         title: "In Progress 🚀",
-        color: "#FFCC00", 
+        color: "#1E3A8A", // Deep blue
         cards: hotPotatoes
           .filter(p => p.temperature <= 80)
           .sort((a, b) => b.temperature - a.temperature)
@@ -47,7 +47,7 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
       },
       review: {
         title: "Review 👀",
-        color: "#4A90E2",
+        color: "#1E40AF", // Slightly different blue
         cards: hotPotatoes
           .filter(p => p.temperature > 80 && p.temperature < 95)
           .sort((a, b) => b.temperature - a.temperature)
@@ -68,7 +68,7 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
       },
       completed: {
         title: "Completed ✅",
-        color: "#002C54",
+        color: "#1D4ED8", // Bright blue
         cards: hotPotatoes
           .filter(p => p.temperature >= 95)
           .sort((a, b) => b.temperature - a.temperature)
@@ -99,16 +99,16 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
       case 'Pre-Construction': return '#FF6B6B';
       case 'Construction': return '#9B59B6';
       case 'Post Construction': return '#2ECC71';
-      default: return '#002C54';
+      default: return '#6B7280';
     }
   };
 
   const getPriorityColor = (priority) => {
     switch(priority) {
-      case 'high': return '#FFCC00';
-      case 'medium': return '#66B2FF';
-      case 'low': return '#4A90E2';
-      default: return '#002C54';
+      case 'high': return '#EF4444';
+      case 'medium': return '#F59E0B';
+      case 'low': return '#10B981';
+      default: return '#6B7280';
     }
   };
 
@@ -144,13 +144,13 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
       draggable
       onDragStart={(e) => handleDragStart(e, card, columnId)}
       onDragEnd={() => setDraggedOver(null)}
-      className="bg-white rounded-lg p-3 sm:p-4 cursor-move"
+      className="bg-gray-800 rounded-lg p-3 sm:p-4 cursor-move border border-gray-700 hover:border-gray-600 transition-colors"
     >
       <div className="flex items-start justify-between mb-3 sm:mb-4">
-        <h4 className="font-bold text-black text-sm sm:text-base flex-1" style={{fontFamily: 'Montserrat, sans-serif'}}>
+        <h4 className="font-bold text-white text-sm sm:text-base flex-1" style={{fontFamily: 'Montserrat, sans-serif'}}>
           {card.title}
         </h4>
-        <button className="text-gray-500">
+        <button className="text-gray-400 hover:text-gray-300">
           <MoreVertical className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
@@ -168,7 +168,7 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="text-lg sm:text-xl">{card.assignee.avatar}</span>
-            <span className="text-xs sm:text-sm text-black font-semibold">{card.assignee.name}</span>
+            <span className="text-xs sm:text-sm text-gray-200 font-semibold">{card.assignee.name}</span>
           </div>
           <div 
             style={{backgroundColor: getPriorityColor(card.priority)}} 
@@ -177,16 +177,16 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
         </div>
 
         <div className="flex items-center justify-between text-xs sm:text-sm">
-          <div className="flex items-center gap-1 sm:gap-2 text-gray-600">
+          <div className="flex items-center gap-1 sm:gap-2 text-gray-400">
             <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
             <span className="font-semibold">{card.dueDate}</span>
           </div>
-          <div className="font-bold text-black">
+          <div className="font-bold text-white">
             ${(card.revenue / 1000).toFixed(0)}k
           </div>
         </div>
 
-        <div style={{backgroundColor: '#E5E5E5'}} className="w-full h-2 sm:h-3 rounded-full">
+        <div className="w-full h-2 sm:h-3 rounded-full bg-gray-700">
           <div 
             className="h-2 sm:h-3 rounded-full transition-all duration-300"
             style={{ width: `${card.progress}%`, backgroundColor: '#FFCC00' }}
@@ -197,10 +197,7 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
   );
 
   return (
-    <div>
-      <p className="text-xs sm:text-sm text-gray-300 mb-3 text-center">
-        Cards sorted by temperature within each column
-      </p>
+    <div className="bg-gray-900 min-h-screen p-4">
       <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4">
         {Object.entries(boardColumns).map(([columnId, column]) => (
           <div
@@ -221,8 +218,8 @@ const BoardView = ({ hotPotatoes, teamStats }) => {
               </div>
             </div>
             
-            <div className={`bg-gray-100 min-h-96 rounded-b-lg p-3 sm:p-4 space-y-3 transition-all ${
-              draggedOver === columnId ? 'ring-2 ring-yellow-400 bg-gray-200' : ''
+            <div className={`bg-gray-800 min-h-96 rounded-b-lg p-3 sm:p-4 space-y-3 transition-all border-2 border-gray-700 ${
+              draggedOver === columnId ? 'ring-2 ring-yellow-400 bg-gray-700' : ''
             }`}>
               {column.cards.map((card) => (
                 <TaskCard key={card.id} card={card} columnId={columnId} />
