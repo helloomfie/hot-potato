@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { sortTasksByPriority } from '../data/tasks';
 import HotPotatoCard from './hotpotatocard';
+import TaskCreator from './taskcreator';
 
-const ListView = ({ hotPotatoes, currentUser, teamStats, handleTaskClick, handleCompletePotato }) => {
+const ListView = ({ hotPotatoes, currentUser, teamStats, handleTaskClick, handleCompletePotato, onCreateTask }) => {
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -12,7 +15,7 @@ const ListView = ({ hotPotatoes, currentUser, teamStats, handleTaskClick, handle
           <p className="text-xs sm:text-sm text-gray-300 mt-1">Your tasks first, then sorted by temperature (hottest first)</p>
         </div>
         <button 
-          onClick={() => console.log('Create new task')}
+          onClick={() => setShowCreateModal(true)}
           style={{backgroundColor: '#FFCC00'}} 
           className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 text-black rounded-lg font-bold text-sm sm:text-base transition-all hover:opacity-80"
         >
@@ -73,6 +76,17 @@ const ListView = ({ hotPotatoes, currentUser, teamStats, handleTaskClick, handle
           <div className="text-xs font-semibold">Post Construction</div>
         </div>
       </div>
+
+      {/* Task Creator Modal */}
+      <TaskCreator 
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreateTask={(newTask) => {
+          onCreateTask(newTask);
+          setShowCreateModal(false);
+        }}
+        teamStats={teamStats}
+      />
     </div>
   );
 };

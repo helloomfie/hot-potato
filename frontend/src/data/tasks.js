@@ -11,7 +11,8 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: null,
-    category: "New Lead"
+    tags: ["sales", "new-lead", "nassau"],
+    category: "Sales"
   },
   {
     id: 'potato-2',
@@ -25,7 +26,8 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: null,
-    category: "New Lead"
+    tags: ["sales", "notes", "pge"],
+    category: "Sales"
   },
   {
     id: 'potato-3',
@@ -39,7 +41,8 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 1,
     lastPasser: "ilan",
-    category: "New Lead"
+    tags: ["sales", "appointment", "zoom"],
+    category: "Sales"
   },
   {
     id: 'potato-4',
@@ -53,6 +56,7 @@ export const initialTasks = [
     difficulty: "epic",
     combo: 0,
     lastPasser: "nas",
+    tags: ["sales", "design", "7.2kw"],
     category: "Sales"
   },
   {
@@ -67,6 +71,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: "brandon",
+    tags: ["sales", "quote", "financing"],
     category: "Sales"
   },
   {
@@ -81,6 +86,7 @@ export const initialTasks = [
     difficulty: "epic",
     combo: 2,
     lastPasser: "nas",
+    tags: ["sales", "proposal", "urgent"],
     category: "Sales"
   },
   {
@@ -95,6 +101,7 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: null,
+    tags: ["customer-intake", "trello", "setup"],
     category: "New Customer"
   },
   {
@@ -109,6 +116,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: "nas",
+    tags: ["customer-intake", "plans", "drafting"],
     category: "New Customer"
   },
   {
@@ -123,6 +131,7 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: null,
+    tags: ["customer-intake", "files", "documentation"],
     category: "New Customer"
   },
   {
@@ -137,6 +146,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 1,
     lastPasser: "brandon",
+    tags: ["customer-intake", "site-visit", "measurement"],
     category: "New Customer"
   },
   {
@@ -151,6 +161,7 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: "nas",
+    tags: ["customer-intake", "form", "completion"],
     category: "New Customer"
   },
   {
@@ -165,6 +176,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: "brandon",
+    tags: ["pre-construction", "materials", "enphase"],
     category: "Pre-Construction"
   },
   {
@@ -179,6 +191,7 @@ export const initialTasks = [
     difficulty: "epic",
     combo: 1,
     lastPasser: "ilan",
+    tags: ["pre-construction", "permit", "nassau"],
     category: "Pre-Construction"
   },
   {
@@ -193,6 +206,7 @@ export const initialTasks = [
     difficulty: "epic",
     combo: 2,
     lastPasser: "ilan",
+    tags: ["construction", "scheduling", "crew-a"],
     category: "Construction"
   },
   {
@@ -207,6 +221,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: "brandon",
+    tags: ["post-construction", "inspection", "signoff"],
     category: "Post Construction"
   },
   {
@@ -221,6 +236,7 @@ export const initialTasks = [
     difficulty: "epic",
     combo: 1,
     lastPasser: "nas",
+    tags: ["post-construction", "interconnection", "pto"],
     category: "Post Construction"
   },
   {
@@ -235,7 +251,8 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: "ilan",
-    category: "Post Construction"
+    tags: ["customer-satisfaction", "welcome", "monitoring"],
+    category: "Customer Satisfaction"
   },
   {
     id: 'potato-18',
@@ -249,7 +266,8 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: null,
-    category: "Post Construction"
+    tags: ["customer-satisfaction", "survey", "feedback"],
+    category: "Customer Satisfaction"
   },
   {
     id: 'potato-19',
@@ -263,7 +281,8 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 1,
     lastPasser: "nas",
-    category: "Post Construction"
+    tags: ["customer-satisfaction", "feedback", "technical"],
+    category: "Customer Satisfaction"
   },
   {
     id: 'potato-20',
@@ -277,7 +296,8 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: "juan",
-    category: "Post Construction"
+    tags: ["customer-satisfaction", "referral", "review"],
+    category: "Customer Satisfaction"
   },
   {
     id: 'potato-21',
@@ -291,7 +311,8 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: "nas",
-    category: "Post Construction"
+    tags: ["customer-satisfaction", "gift", "branding"],
+    category: "Customer Satisfaction"
   },
   {
     id: 'potato-22',
@@ -305,7 +326,8 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 1,
     lastPasser: "juan",
-    category: "Post Construction"
+    tags: ["customer-satisfaction", "followup", "savings"],
+    category: "Customer Satisfaction"
   },
   {
     id: 'potato-23',
@@ -319,6 +341,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: "brandon",
+    tags: ["construction", "materials", "delivery"],
     category: "Construction"
   },
   {
@@ -333,6 +356,7 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: null,
+    tags: ["construction", "walkthrough", "customer"],
     category: "Construction"
   },
   {
@@ -347,6 +371,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 1,
     lastPasser: "juan",
+    tags: ["construction", "crew", "briefing"],
     category: "Construction"
   },
   {
@@ -361,6 +386,7 @@ export const initialTasks = [
     difficulty: "epic",
     combo: 2,
     lastPasser: "nas",
+    tags: ["construction", "installation", "coordination"],
     category: "Construction"
   },
   {
@@ -375,6 +401,7 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: "brandon",
+    tags: ["construction", "report", "progress"],
     category: "Construction"
   },
   {
@@ -389,6 +416,7 @@ export const initialTasks = [
     difficulty: "epic",
     combo: 1,
     lastPasser: "nas",
+    tags: ["construction", "quality", "inspection"],
     category: "Construction"
   },
   {
@@ -403,6 +431,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: "ilan",
+    tags: ["construction", "customer", "completion"],
     category: "Construction"
   },
   {
@@ -417,6 +446,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 1,
     lastPasser: "juan",
+    tags: ["post-construction", "permit", "ahj"],
     category: "Post Construction"
   },
   {
@@ -431,6 +461,7 @@ export const initialTasks = [
     difficulty: "epic",
     combo: 0,
     lastPasser: "brandon",
+    tags: ["post-construction", "interconnection", "utility"],
     category: "Post Construction"
   },
   {
@@ -445,6 +476,7 @@ export const initialTasks = [
     difficulty: "rare",
     combo: 0,
     lastPasser: "nas",
+    tags: ["post-construction", "net-metering", "nem"],
     category: "Post Construction"
   },
   {
@@ -459,6 +491,7 @@ export const initialTasks = [
     difficulty: "epic",
     combo: 2,
     lastPasser: "juan",
+    tags: ["post-construction", "pto", "activation"],
     category: "Post Construction"
   },
   {
@@ -473,6 +506,7 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: null,
+    tags: ["post-construction", "monitoring", "portal"],
     category: "Post Construction"
   },
   {
@@ -487,6 +521,7 @@ export const initialTasks = [
     difficulty: "common",
     combo: 0,
     lastPasser: "juan",
+    tags: ["post-construction", "documentation", "final"],
     category: "Post Construction"
   }
 ];
@@ -507,6 +542,7 @@ export const createNewTask = (formData, selectedEmoji) => {
     difficulty: formData.value > 2000 ? "epic" : formData.value > 1200 ? "rare" : "common",
     combo: 0,
     lastPasser: null,
+    tags: [formData.category.toLowerCase().replace(' ', '-'), "new"],
     category: formData.category
   };
 };
@@ -542,7 +578,8 @@ export const taskCategories = [
   'New Customer',
   'Pre-Construction',
   'Construction',
-  'Post Construction'
+  'Post Construction',
+  'Customer Satisfaction'
 ];
 
 // Popular emojis for task creation
