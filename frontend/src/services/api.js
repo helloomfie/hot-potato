@@ -99,6 +99,55 @@ export const taskAPI = {
     }
   },
 
+  // NEW: Complete task method for game integration
+  completeTask: async (taskId, completedBy) => {
+    try {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/tasks/${taskId}/complete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ completedBy }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to complete task: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error completing task:', error);
+      throw error;
+    }
+  },
+
+  // NEW: Pass task to another user
+  passTask: async (taskId, fromUser, toUser) => {
+    try {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          holder: toUser,
+          currentHolder: fromUser
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to pass task: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error passing task:', error);
+      throw error;
+    }
+  },
+
   getArchivedTasks: async () => {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/tasks/archived`);
@@ -146,6 +195,132 @@ export const taskAPI = {
     }
   }
 };
+
+// NEW: Game-specific API wrapper with polling
+export class GameAPI {
+  constructor() {
+    this.pollInterval = 2000; // 2 seconds
+    this.isPolling = false;
+    this.pollTimeout = null;
+    this.lastTaskHash = null;
+  }
+
+  async getTasks() {
+    try {
+      const response = await taskAPI.getAllTasks();
+      
+      // Handle different response formats from your backend
+      if (response && response.data) {
+        return response.data; // If backend returns { success: true, data: [...] }
+      } else if (Array.isArray(response)) {
+        return response; // If backend returns tasks array directly
+      } else {
+        return []; // Fallback to empty array
+      }
+    } catch (error) {
+      console.error('Failed to fetch tasks for game:', error);
+      return [];
+    }
+  }
+
+  async updateTask(taskId, updates) {
+    try {
+      const response = await taskAPI.updateTask(taskId, updates);
+      return response;
+    } catch (error) {
+      console.error('Failed to update task:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async completeTask(taskId, completedBy) {
+    try {
+      // Try the complete endpoint first, fallback to delete if not available
+      let response;
+      try {
+        response = await taskAPI.completeTask(taskId, completedBy);
+      } catch (error) {
+        // Fallback to delete if complete endpoint doesn't exist
+        response = await taskAPI.deleteTask(taskId);
+      }
+      return response;
+    } catch (error) {
+      console.error('Failed to complete task:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async passTask(taskId, fromUser, toUser) {
+    try {
+      const response = await taskAPI.passTask(taskId, fromUser, toUser);
+      return response;
+    } catch (error) {
+      console.error('Failed to pass task:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  startPolling(callback, options = {}) {
+    if (this.isPolling) {
+      console.log('Polling already active');
+      return;
+    }
+    
+    this.pollInterval = options.interval || 2000;
+    this.isPolling = true;
+    this.pollTasks(callback);
+  }
+
+  stopPolling() {
+    this.isPolling = false;
+    if (this.pollTimeout) {
+      clearTimeout(this.pollTimeout);
+      this.pollTimeout = null;
+    }
+  }
+
+  async pollTasks(callback) {
+    if (!this.isPolling) return;
+
+    try {
+      const tasks = await this.getTasks();
+      
+      // Only call callback if tasks actually changed
+      const currentHash = this.hashTasks(tasks);
+      if (currentHash !== this.lastTaskHash) {
+        this.lastTaskHash = currentHash;
+        callback(tasks);
+      }
+    } catch (error) {
+      console.error('Polling error:', error);
+      // Still call callback with empty array to handle offline state
+      callback([]);
+    }
+
+    this.pollTimeout = setTimeout(() => {
+      this.pollTasks(callback);
+    }, this.pollInterval);
+  }
+
+  hashTasks(tasks) {
+    // Simple hash to detect changes
+    return JSON.stringify(tasks.map(task => ({
+      id: task.id,
+      holder: task.holder,
+      temperature: task.temperature,
+      updatedAt: task.updatedAt
+    })));
+  }
+
+  // Connection status check
+  async checkConnection() {
+    try {
+      return await taskAPI.healthCheck();
+    } catch (error) {
+      return false;
+    }
+  }
+}
 
 export const handleAPIError = (error) => {
   console.error('API Error:', error);
@@ -196,3 +371,6 @@ export const checkConnection = async () => {
     return false;
   }
 };
+
+// Export the game API instance for use in components
+export const gameAPI = new GameAPI();
