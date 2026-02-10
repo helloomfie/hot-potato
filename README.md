@@ -1,4 +1,4 @@
-# Hot Potato Task Transfer Game — README
+# Hot Potato Task Transfer Game
 
 ## What this is
 A lightweight “game mechanic” concept for transferring tasks between coworkers using a **Hot Potato** rule-set.
