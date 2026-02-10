@@ -1,6 +1,6 @@
 # hot-potato
 
-A gamified task management system for solar installation workflows with an interactive visual game interface.
+gamified task management system for solar installation workflows with an interactive visual game interface.
 
 ## Overview
 
